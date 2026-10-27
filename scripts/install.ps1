@@ -45,6 +45,7 @@ $required = @(
     (Join-Path $binDir "psiphon-tunnel-core.exe"),
     (Join-Path $binDir "psiphon-service.exe"),
     (Join-Path $cliDir "psiphon.ps1"),
+    (Join-Path $cliDir "speedtest.ps1"),
     (Join-Path $configDir "psiphon.config.template.json")
 )
 foreach ($file in $required) {

@@ -127,6 +127,7 @@ Save the file and the service reloads the tunnel within a couple of seconds.
 bin\psiphon-tunnel-core.exe   tunnel core, built from source
 bin\psiphon-service.exe       service host
 cli\psiphon.ps1               command line helper
+cli\speedtest.ps1            latency and throughput measurements
 config\psiphon.config         generated at install time
 config\service.json           generated at install time
 data\                         tunnel data store
