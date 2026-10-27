@@ -1,5 +1,7 @@
 # Psiphon as a Windows service
 
+English | [فارسی](README.fa.md)
+
 This is a thin Windows service wrapper around
 [psiphon-tunnel-core](https://github.com/Psiphon-Labs/psiphon-tunnel-core).
 It keeps the tunnel running in the background, starts it at boot, and puts the

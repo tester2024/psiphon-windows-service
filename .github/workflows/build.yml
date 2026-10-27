@@ -57,7 +57,7 @@ jobs:
           Copy-Item "bin/psiphon-tunnel-core.exe" "$stage/bin"
           Copy-Item "bin/psiphon-service.exe" "$stage/bin"
           Copy-Item "cli", "config", "scripts" "$stage" -Recurse
-          Copy-Item "README.md", "LICENSE" "$stage"
+          Copy-Item "README.md", "README.fa.md", "LICENSE" "$stage"
           $zip = "psiphon-windows-service-$version.zip"
           Compress-Archive -Path $stage -DestinationPath $zip -Force
           Get-Item $zip | Select-Object Name, Length
