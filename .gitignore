@@ -1,0 +1,22 @@
+# build output and runtime data
+bin/
+dist/
+data/
+logs/
+*.exe
+*.zip
+
+# generated config (created by scripts/install.ps1)
+config/psiphon.config
+config/service.json
+
+# upstream source checked out for local builds
+upstream/
+psiphon-tunnel-core-master/
+
+# editor / os noise
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+*.log

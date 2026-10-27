@@ -1,0 +1,76 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+          cache: false
+
+      - name: Create output folder
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force -Path bin | Out-Null
+
+      - name: Fetch psiphon-tunnel-core
+        shell: pwsh
+        run: git clone --depth 1 --branch v2.0.42 https://github.com/Psiphon-Labs/psiphon-tunnel-core.git upstream
+
+      - name: Build tunnel core
+        working-directory: upstream
+        shell: pwsh
+        env:
+          CGO_ENABLED: "0"
+          GOFLAGS: "-mod=vendor"
+        run: go build -trimpath -ldflags "-s -w" -o ../bin/psiphon-tunnel-core.exe ./ConsoleClient
+
+      - name: Build service host
+        working-directory: service
+        shell: pwsh
+        env:
+          CGO_ENABLED: "0"
+        run: go build -trimpath -ldflags "-s -w" -o ../bin/psiphon-service.exe .
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF -like "refs/tags/*") { $env:GITHUB_REF -replace "refs/tags/", "" } else { "dev" }
+          $stageRoot = Join-Path $env:RUNNER_TEMP "stage"
+          $stage = Join-Path $stageRoot "psiphon-windows-service"
+          Remove-Item $stageRoot -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path "$stage/bin" | Out-Null
+          Copy-Item "bin/psiphon-tunnel-core.exe" "$stage/bin"
+          Copy-Item "bin/psiphon-service.exe" "$stage/bin"
+          Copy-Item "cli", "config", "scripts" "$stage" -Recurse
+          Copy-Item "README.md", "LICENSE" "$stage"
+          $zip = "psiphon-windows-service-$version.zip"
+          Compress-Archive -Path $stage -DestinationPath $zip -Force
+          Get-Item $zip | Select-Object Name, Length
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: psiphon-windows-service
+          path: psiphon-windows-service-*.zip
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: psiphon-windows-service-*.zip
+          generate_release_notes: true
